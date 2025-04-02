@@ -16,6 +16,9 @@ def add_donor():
 
     if donors_collection.find_one({"email": data["email"]}) or users_collection.find_one({"email": data["email"]}):
         return jsonify({"error": "Email already registered"}), 400
+    
+    if donors_collection.find_one({"contact": data["contact"]}):
+        return jsonify({"error": "Contact number already registered"}), 400
 
     hashed_password = generate_password_hash(data["password"]) if "password" in data else None
 

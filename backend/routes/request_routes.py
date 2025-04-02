@@ -1,43 +1,74 @@
 from flask import Blueprint, request, jsonify
 from database import requests_collection, users_collection
 from models.request import BloodRequest
-from bson import ObjectId
 
 request_routes = Blueprint("request_routes", __name__)
 
-@request_routes.route("/requests", methods=["POST"])
+@request_routes.route("/add", methods=["POST"])
 def create_request():
+    """Create a new blood request using email instead of user ID"""
     data = request.json
-    user = users_collection.find_one({"_id": ObjectId(data["user_id"])})  
-    
-    if not user:
-        return jsonify({"error": "Invalid requestor ID"}), 400
 
+    required_fields = ["email", "patient_name", "blood_group", "hospital_name", "location"]
+    if not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing required fields"}), 400
+    user = users_collection.find_one({"email": data["email"]})
+    if not user:
+        return jsonify({"error": "No user found with this email"}), 400
     new_request = BloodRequest(
-        data["user_id"], data["patient_name"], data["blood_group"], 
-        data["hospital_name"], data["location"]
+        email=data["email"],
+        patient_name=data["patient_name"],
+        blood_group=data["blood_group"],
+        hospital_name=data["hospital_name"],
+        location=data["location"],
+        status="pending"  
     )
 
     requests_collection.insert_one(new_request.to_dict())
     return jsonify({"message": "Blood request added successfully"}), 201
 
-@request_routes.route("/requests", methods=["GET"])
+@request_routes.route("/find", methods=["GET"])
 def get_requests():
+    """Fetch all blood requests"""
     requests = []
     for request_data in requests_collection.find(): 
-        requests.append(BloodRequest(**request_data))
-    return jsonify({"requests": [request.to_dict() for request in requests]}), 200
+        request_obj = BloodRequest(
+            email=request_data["email"],
+            patient_name=request_data["patient_name"],
+            blood_group=request_data["blood_group"],
+            hospital_name=request_data["hospital_name"],
+            location=request_data["location"],
+            status=request_data.get("status", "pending")
+        )
+        requests.append(request_obj.to_dict())
+    
+    return jsonify({"requests": requests}), 200
 
-@request_routes.route("/requests/user/<user_id>", methods=["GET"])
-def get_requests_by_user(user_id):
-    requests = list(requests_collection.find({"user_id": ObjectId(user_id)}, {"_id": 0}))
+@request_routes.route("/user/<email>", methods=["GET"])
+def get_requests_by_user(email):
+    """Fetch blood requests by user email"""
+    requests = list(requests_collection.find({"email": email}, {"_id": 0}))
+    if not requests:
+        return jsonify({"error": "No requests found for this email"}), 404
     return jsonify(requests), 200
 
-@request_routes.route("/requests/<request_id>/status", methods=["PUT"])
+from bson import ObjectId
+
+@request_routes.route("/<request_id>/status", methods=["PUT"])
 def update_request_status(request_id):
+    """Update the status of a blood request"""
     data = request.json
-    result = requests_collection.update_one({"_id": ObjectId(request_id)}, {"$set": {"status": data["status"]}})
-    
-    if result.modified_count > 0:
-        return jsonify({"message": "Request status updated"}), 200
-    return jsonify({"error": "Request not found"}), 404
+
+    if "status" not in data:
+        return jsonify({"error": "Missing status field"}), 400
+    try:
+        object_id = ObjectId(request_id)
+    except:
+        return jsonify({"error": "Invalid request_id format"}), 400
+
+    request_exists = requests_collection.find_one({"_id": object_id})
+
+    if not request_exists:
+        return jsonify({"error": "Request not found"}), 404
+    requests_collection.update_one({"_id": object_id}, {"$set": {"status": data["status"]}})
+    return jsonify({"message": "Request status updated successfully"}), 200
