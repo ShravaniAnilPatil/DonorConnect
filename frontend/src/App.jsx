@@ -18,26 +18,30 @@ function App() {
       <div className="font-sans">
         <Navbar />
         <Routes>
+          {/* ✅ PUBLIC HOME PAGE */}
           <Route
             path="/"
             element={
-              user ? (
-                <>
-                  <Hero />
-                  <SectionInfo />
-                  <QuoteSection />
-                  <DeveloperSection />
-                  <Footer />
-                </>
-              ) : (
-                <Navigate to="/login" />
-              )
+              <>
+                <Hero />
+                <SectionInfo />
+                <QuoteSection />
+                <DeveloperSection />
+                <Footer />
+              </>
             }
           />
+
+          {/* ✅ PUBLIC ROUTES */}
           <Route path="/login" element={<Login />} />
           <Route path="/register-donor" element={<RegisterDonor />} />
           <Route path="/register-requestor" element={<RegisterRequestor />} />
-          <Route path="/profile" element={<Profile />} />
+
+          {/* ✅ PROTECTED PROFILE */}
+          <Route
+            path="/profile"
+            element={user ? <Profile /> : <Navigate to="/login" />}
+          />
         </Routes>
       </div>
     </Router>

@@ -19,7 +19,7 @@ const Navbar = () => {
       {/* Left: Logo + Nav Links */}
       <div className="flex items-center gap-10">
         <div className="text-2xl font-bold cursor-pointer" onClick={() => navigate("/")}>
-          Donor Connect
+          DonorConnect
         </div>
         <ul className="flex gap-6 text-base">
           {["Home", "Campaign", "Pages", "Blog", "Contact", "About Us"].map((item) => (
