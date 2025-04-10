@@ -83,3 +83,30 @@ def get_requests_for_donor(email):
         result.append(req)
 
     return jsonify(result), 200
+
+@request_routes.route("/find/<blood_group>", methods=["GET"])
+def get_requests_by_blood_group(blood_group):
+    """Fetch all blood requests for a specific blood group"""
+    try:
+        matching_requests = []
+        for request_data in requests_collection.find({"blood_group": blood_group.upper()}):
+            request_obj = BloodRequest(
+                email=request_data["email"],
+                patient_name=request_data["patient_name"],
+                blood_group=request_data["blood_group"],
+                hospital_name=request_data["hospital_name"],
+                location=request_data["location"],
+                status=request_data.get("status", "pending")
+            )
+            request_dict = request_obj.to_dict()
+            request_dict["_id"] = str(request_data["_id"])  
+            matching_requests.append(request_dict)
+
+        return jsonify({"requests": matching_requests}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+    except Exception as e:
+        return jsonify({"error": "Failed to fetch requests", "details": str(e)}), 500
