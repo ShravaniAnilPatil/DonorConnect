@@ -6,7 +6,7 @@ const SectionInfo = () => {
           You can give blood at any of our blood donation venues. We have several donor centers and visit other venues on various occasions.
         </p>
         <button className="bg-red-500 hover:bg-red-600 px-6 py-3 text-white text-lg rounded shadow">
-          REQUEST APPOINTMENT
+          FIND DONOR
         </button>
       </section>
     );

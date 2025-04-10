@@ -24,19 +24,22 @@ const RegisterDonor = () => {
     try {
       const res = await axios.post("http://localhost:5000/api/donors/register", form);
       alert(res.data.message);
-
-      // Save user name and email in localStorage
+  
       localStorage.setItem(
         "user",
-        JSON.stringify({ name: form.name, email: form.email })
+        JSON.stringify({
+          name: form.name,
+          email: form.email,
+          user_type: "donor",
+        })
       );
-
-      // Redirect to home page
+  
       navigate("/");
     } catch (err) {
       alert(err.response?.data?.error || "Registration failed.");
     }
   };
+  
 
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -70,8 +73,6 @@ const RegisterDonor = () => {
             />
           </div>
         ))}
-
-        {/* Blood Group Dropdown */}
         <div className="mb-4">
           <label className="block mb-1 text-gray-700">Blood Group</label>
           <select
@@ -89,8 +90,6 @@ const RegisterDonor = () => {
             ))}
           </select>
         </div>
-
-        {/* Last Donation Date with calendar input */}
         <div className="mb-6">
           <label className="block mb-1 text-gray-700">Last Donation Date</label>
           <input

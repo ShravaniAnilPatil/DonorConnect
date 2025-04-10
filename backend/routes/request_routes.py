@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database import requests_collection, users_collection
 from models.request import BloodRequest
+from bson import ObjectId
 
 request_routes = Blueprint("request_routes", __name__)
 
@@ -52,8 +53,6 @@ def get_requests_by_user(email):
         return jsonify({"error": "No requests found for this email"}), 404
     return jsonify(requests), 200
 
-from bson import ObjectId
-
 @request_routes.route("/<request_id>/status", methods=["PUT"])
 def update_request_status(request_id):
     """Update the status of a blood request"""
@@ -72,3 +71,15 @@ def update_request_status(request_id):
         return jsonify({"error": "Request not found"}), 404
     requests_collection.update_one({"_id": object_id}, {"$set": {"status": data["status"]}})
     return jsonify({"message": "Request status updated successfully"}), 200
+
+@request_routes.route("/requests-for-donor/<email>", methods=["GET"])
+def get_requests_for_donor(email):
+    """Fetch all blood requests sent to a particular donor's email"""
+    requests = requests_collection.find({"email": email})
+    result = []
+
+    for req in requests:
+        req["_id"] = str(req["_id"])
+        result.append(req)
+
+    return jsonify(result), 200

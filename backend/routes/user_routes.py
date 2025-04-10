@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from database import users_collection
 from models.user import User
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 user_routes = Blueprint("user_routes", __name__)
 
@@ -17,7 +19,6 @@ def register():
 
     return jsonify({"message": "User registered successfully"}), 201
 
-from werkzeug.security import check_password_hash
 
 @user_routes.route("/login", methods=["POST"])
 def login():
@@ -32,3 +33,18 @@ def login():
             return jsonify({"message": "Login successful", "user_type": user.get("user_type", "requestor")}), 200
 
     return jsonify({"error": "Invalid email or password"}), 401
+
+@user_routes.route("/profile", methods=["POST"])
+def get_user_profile():
+    data = request.json
+    email = data.get("email")
+
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
+
+    user = users_collection.find_one({"email": email}, {"_id": 0})  # exclude Mongo _id
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify(user), 200
+

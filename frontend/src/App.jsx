@@ -9,7 +9,8 @@ import Login from "./pages/Login";
 import RegisterDonor from "./pages/RegisterDonor";
 import RegisterRequestor from "./pages/RegisterRequestor";
 import Profile from "./pages/Profile";
-
+import MyRequests from "./pages/MyRequests";
+import FindDonors from "./pages/FindDonor";
 function App() {
   const user = localStorage.getItem("user");
 
@@ -36,6 +37,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register-donor" element={<RegisterDonor />} />
           <Route path="/register-requestor" element={<RegisterRequestor />} />
+          <Route path="/my-requests" element={user ? <MyRequests /> : <Navigate to="/login" />} />
+          <Route path="/find-donors" element={<FindDonors />} />
 
           {/* ✅ PROTECTED PROFILE */}
           <Route

@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
-from werkzeug.security import generate_password_hash
 from database import donors_collection, users_collection  
 from models.donor import Donor  
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 donor_routes = Blueprint("donor_routes", __name__)
 
@@ -56,3 +57,31 @@ def update_donor_availability(name):
     if result.modified_count > 0:
         return jsonify({"message": "Donor availability updated"}), 200
     return jsonify({"error": "Donor not found"}), 404
+
+@donor_routes.route("/login", methods=["POST"])
+def login():
+    data = request.json
+    donor = donors_collection.find_one({"email": data["email"]})
+
+    if donor:
+        stored_password_hash = donor["password"] 
+        entered_password = data["password"] 
+        
+        if check_password_hash(stored_password_hash, entered_password):
+            return jsonify({"message": "Login successful", "user_type": donor.get("user_type", "donor")}), 200
+
+    return jsonify({"error": "Invalid email or password"}), 401
+
+@donor_routes.route("/profile", methods=["POST"])
+def get_donor_profile():
+    """Get donor profile by email"""
+    data = request.json
+    email = data.get("email")
+    if not email:
+        return jsonify({"error": "Email required"}), 400
+
+    donor = donors_collection.find_one({"email": email}, {"_id": 0, "password": 0})
+    if not donor:
+        return jsonify({"error": "Donor not found"}), 404
+
+    return jsonify(donor), 200

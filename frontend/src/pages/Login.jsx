@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
-  const [userType, setUserType] = useState("requestor"); // default to requestor
+  const [userType, setUserType] = useState("requestor"); 
   const navigate = useNavigate();
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -12,13 +12,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const endpoint = userType === "donor" ? "/donor/login" : "/users/login";
+    const endpoint = userType === "donor" ? "/donors/login" : "/users/login";
 
     try {
       const res = await axios.post(`http://localhost:5000/api${endpoint}`, form);
       alert(res.data.message);
-
-      // Store user in localStorage
       const storedUser = {
         email: form.email,
         userType: res.data.user_type || userType,
@@ -43,7 +41,7 @@ const Login = () => {
       <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold text-red-600 mb-4 text-center">Login</h2>
 
-        {/* User Type Toggle */}
+
         <div className="flex justify-center gap-4 mb-6">
           <button
             type="button"
@@ -64,8 +62,6 @@ const Login = () => {
             Donor
           </button>
         </div>
-
-        {/* Login Form */}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block mb-1">Email</label>
@@ -98,7 +94,6 @@ const Login = () => {
           </button>
         </form>
 
-        {/* Signup Link (moved outside the form) */}
         <div className="mt-6 text-center">
           <p className="text-gray-600">Don't have an account?</p>
           <button
