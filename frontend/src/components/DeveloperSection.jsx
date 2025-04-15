@@ -2,7 +2,7 @@ import DeveloperImg from '../assets/shravani.jpg';
 
 const DeveloperSection = () => {
   const developer = {
-    name: "Shravani Patil",
+    name: "Shravani Anil Patil",
     role: "Full Stack Developer",
     github: "https://github.com/ShravaniAnilPatil",
     img: DeveloperImg,

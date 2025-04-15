@@ -40,6 +40,35 @@ const Navbar = () => {
       "Find Donors": "/find-donors",
       Requests: "/all-requests",
     };
+    const scrollToFooterSection = (id) => {
+      const section = document.getElementById(id);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+    const scrollToSection = (id) => {
+      const section = document.getElementById(id);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+    if (item === "Blog") {
+      scrollToSection("quote-section"); 
+      setIsMenuOpen(false);
+      return;
+    }
+  
+    if (item === "About Us") {
+      scrollToFooterSection("about");
+      setIsMenuOpen(false);
+      return;
+    }
+  
+    if (item === "Contact") {
+      scrollToFooterSection("contact");
+      setIsMenuOpen(false);
+      return;
+    }
   
     const userData = JSON.parse(localStorage.getItem("user"));
     const userType = userData?.userType;

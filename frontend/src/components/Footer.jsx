@@ -1,7 +1,7 @@
 const Footer = () => {
   return (
     <footer className="bg-[#1F1F1F] text-gray-300 py-20 px-6">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-10">
+      <div id = "about" className="max-w-6xl mx-auto grid md:grid-cols-4 gap-10">
         {/* About */}
         <div className="md:col-span-2">
           <h2 className="text-3xl font-bold text-red-500 mb-4">Let's Make All Bonded</h2>
@@ -13,23 +13,16 @@ const Footer = () => {
           </p>
         </div>
 
-        {/* Contact Us */}
-        <div>
-          <h3 className="text-xl font-bold text-red-500 mb-3">Contact Us</h3>
-          <p className="mb-2">📧 donorconnect@gmail.com</p>
-          <p className="mb-2">📍 Panvel, Maharashtra 410206</p>
-          <p className="mb-2">📞 +91-9832805245</p>
-        </div>
+      {/* Contact Us */}
+<div id="contact">
+  <h3 className="text-xl font-bold text-red-500 mb-3">Contact Us</h3>
+  <p className="mb-2">📧 donorconnect@gmail.com</p>
+  <p className="mb-2">📍 Panvel, Maharashtra 410206</p>
+  <p className="mb-2">📞 +91-9832805245</p>
+</div>
 
-        {/* Support Links */}
-        <div>
-          <h3 className="text-xl font-bold text-red-500 mb-3">Support Links</h3>
-          <ul className="space-y-2">
-            <li><a href="#" className="hover:text-red-400">Link 1</a></li>
-            <li><a href="#" className="hover:text-red-400">Link 2</a></li>
-            <li><a href="#" className="hover:text-red-400">Link 3</a></li>
-          </ul>
-        </div>
+{/* About */}
+
       </div>
 
       {/* Credits */}
