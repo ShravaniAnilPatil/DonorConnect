@@ -13,11 +13,42 @@ const RegisterRequestor = () => {
     blood_group: "",
     location: "",
   });
+  
+  const [errors, setErrors] = useState({
+    phone: "",
+  });
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const validatePhoneNumber = (phone) => {
+    const pattern = /^[789]\d{9}$/;
+    return pattern.test(phone);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+
+    // Phone validation
+    if (name === "phone") {
+      setErrors({
+        ...errors,
+        phone: validatePhoneNumber(value)
+          ? ""
+          : "Phone number must be 10 digits and start with 7, 8, or 9.",
+      });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Validate phone number before submitting
+    if (!validatePhoneNumber(form.phone)) {
+      setErrors({
+        ...errors,
+        phone: "Phone number must be 10 digits and start with 7, 8, or 9.",
+      });
+      return;
+    }
+
     try {
       const res = await axios.post("http://localhost:5000/api/users/register", form);
       alert(res.data.message);
@@ -71,6 +102,7 @@ const RegisterRequestor = () => {
             className="w-full px-4 py-2 border border-gray-300 rounded"
             required
           />
+          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
         </div>
 
         {/* Blood Group Dropdown */}

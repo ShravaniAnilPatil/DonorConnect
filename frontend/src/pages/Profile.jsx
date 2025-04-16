@@ -16,17 +16,17 @@ const Profile = () => {
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    
+
     if (!storedUser?.email || !storedUser?.userType) {
       navigate("/login");
       return;
     }
-  
+
     const apiRoute =
       storedUser.userType === "donor"
         ? "http://localhost:5000/api/donors/profile"
         : "http://localhost:5000/api/users/profile";
-  
+
     axios
       .post(apiRoute, { email: storedUser.email })
       .then((res) => {
@@ -36,7 +36,7 @@ const Profile = () => {
         console.error("Error fetching user profile:", err);
       });
   }, [navigate]);
-  
+
   const handleLogout = () => {
     const confirmed = window.confirm("Are you sure you want to logout?");
     if (confirmed) {
@@ -72,7 +72,7 @@ const Profile = () => {
         </p>
         <p className="flex items-center gap-3">
           <FaPhone className="text-red-500" /> <strong>Phone:</strong>{" "}
-          {user.phone}
+          {userType === "donor" ? user.contact : user.phone}
         </p>
         <p className="flex items-center gap-3">
           <FaTint className="text-red-500" /> <strong>Blood Group:</strong>{" "}

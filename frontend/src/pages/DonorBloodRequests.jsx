@@ -86,7 +86,7 @@ const DonorBloodRequests = () => {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold text-red-600 mb-4 text-center">
-        Requests for Blood Group: {bloodGroup}
+        Requests for You
       </h2>
 
       {requests.length > 0 ? (
