@@ -72,16 +72,19 @@ const Navbar = () => {
   
     const userData = JSON.parse(localStorage.getItem("user"));
     const userType = userData?.userType;
-  
     if (item === "My Requests") {
-      if (!userData) return;
-  
+      if (!userData) {
+        navigate("/login");
+        setIsMenuOpen(false);
+        return;
+      }
+    
       if (userType === "requestor") {
         const email = userData.email;
         try {
           const response = await fetch(`http://localhost:5000/api/requests/user/${email}`);
           const data = await response.json();
-  
+    
           if (response.ok) {
             localStorage.setItem("myRequests", JSON.stringify(data));
           } else {
@@ -91,15 +94,16 @@ const Navbar = () => {
           console.error("Failed to fetch requests:", error);
           alert("Something went wrong while fetching your requests.");
         }
-  
+    
         navigate("/my-requests");
       } else if (userType === "donor") {
         navigate("/donor-requests");
       }
-  
+    
       setIsMenuOpen(false);
       return;
     }
+    
   
     navigate(routes[item] || "/");
     setIsMenuOpen(false);
