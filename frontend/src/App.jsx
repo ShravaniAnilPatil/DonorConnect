@@ -13,6 +13,7 @@ import MyRequests from "./pages/MyRequests";
 import FindDonors from "./pages/FindDonor";
 import AllRequests from "./pages/AllRequests";
 import DonorBloodRequests from "./pages/DonorBloodRequests";
+import ProtectedRoute from "./components/protectedRoute";
 function App() {
   const user = localStorage.getItem("user");
 

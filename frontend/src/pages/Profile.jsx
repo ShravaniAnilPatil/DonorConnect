@@ -1,96 +1,107 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  FaUser,
-  FaEnvelope,
-  FaPhone,
-  FaTint,
-  FaMapMarkerAlt,
-  FaSignOutAlt,
-} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const fetchUserData = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        
+        if (!user || !user.email) {
+          navigate("/login");
+          return;
+        }
+        
+        const endpoint = user.userType === "donor" 
+          ? "/donors/profile" 
+          : "/users/profile";
+        
+        const response = await axios.post(`http://localhost:5000/api${endpoint}`, {
+          email: user.email
+        });
+        
+        setUserData(response.data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        alert("Failed to load profile data");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (!storedUser?.email || !storedUser?.userType) {
-      navigate("/login");
-      return;
-    }
-
-    const apiRoute =
-      storedUser.userType === "donor"
-        ? "http://localhost:5000/api/donors/profile"
-        : "http://localhost:5000/api/users/profile";
-
-    axios
-      .post(apiRoute, { email: storedUser.email })
-      .then((res) => {
-        setUser(res.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching user profile:", err);
-      });
+    fetchUserData();
   }, [navigate]);
 
   const handleLogout = () => {
-    const confirmed = window.confirm("Are you sure you want to logout?");
-    if (confirmed) {
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
       localStorage.removeItem("user");
       navigate("/login");
     }
   };
-
-  if (!user) {
-    return (
-      <div className="text-center mt-20 text-gray-600 text-xl animate-pulse">
-        Loading profile...
-      </div>
-    );
+  
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading profile...</div>;
   }
 
-  const userType = JSON.parse(localStorage.getItem("user"))?.userType || "User";
-  const profileTitle =
-    userType === "requestor" ? "🧾 Requestor Profile" : "🩸 Donor Profile";
-
   return (
-    <div className="max-w-xl mx-auto mt-16 bg-gradient-to-br from-red-50 to-white shadow-2xl rounded-3xl p-8">
-      <h2 className="text-3xl font-extrabold text-center text-red-700 mb-6">
-        {profileTitle}
-      </h2>
-      <div className="space-y-4 text-gray-700 text-lg">
-        <p className="flex items-center gap-3">
-          <FaUser className="text-red-500" /> <strong>Name:</strong> {user.name}
-        </p>
-        <p className="flex items-center gap-3">
-          <FaEnvelope className="text-red-500" /> <strong>Email:</strong>{" "}
-          {user.email}
-        </p>
-        <p className="flex items-center gap-3">
-          <FaPhone className="text-red-500" /> <strong>Phone:</strong>{" "}
-          {userType === "donor" ? user.contact : user.phone}
-        </p>
-        <p className="flex items-center gap-3">
-          <FaTint className="text-red-500" /> <strong>Blood Group:</strong>{" "}
-          {user.blood_group}
-        </p>
-        <p className="flex items-center gap-3">
-          <FaMapMarkerAlt className="text-red-500" /> <strong>Location:</strong>{" "}
-          {user.location}
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-red-600">User Profile</h1>
+          <button
+            onClick={handleLogout}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded"
+          >
+            Logout
+          </button>
+        </div>
 
-      <div className="mt-8 text-center">
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full shadow-md transition-all flex items-center justify-center gap-2"
-        >
-          <FaSignOutAlt /> Logout
-        </button>
+        {userData ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-50 p-4 rounded">
+                <h3 className="text-gray-500 text-sm">Name</h3>
+                <p className="font-medium">{userData.name}</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded">
+                <h3 className="text-gray-500 text-sm">Email</h3>
+                <p className="font-medium">{userData.email}</p>
+              </div>
+              {userData.blood_group && (
+                <div className="bg-gray-50 p-4 rounded">
+                  <h3 className="text-gray-500 text-sm">Blood Group</h3>
+                  <p className="font-medium">{userData.blood_group}</p>
+                </div>
+              )}
+              {userData.contact && (
+                <div className="bg-gray-50 p-4 rounded">
+                  <h3 className="text-gray-500 text-sm">Contact</h3>
+                  <p className="font-medium">{userData.contact}</p>
+                </div>
+              )}
+              {userData.location && (
+                <div className="bg-gray-50 p-4 rounded">
+                  <h3 className="text-gray-500 text-sm">Location</h3>
+                  <p className="font-medium">{userData.location}</p>
+                </div>
+              )}
+              {userData.age && (
+                <div className="bg-gray-50 p-4 rounded">
+                  <h3 className="text-gray-500 text-sm">Age</h3>
+                  <p className="font-medium">{userData.age}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">No profile data available</p>
+        )}
       </div>
     </div>
   );

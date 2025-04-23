@@ -10,12 +10,14 @@ const RegisterRequestor = () => {
     email: "",
     phone: "",
     password: "",
+    confirmPassword: "",
     blood_group: "",
     location: "",
   });
-  
+
   const [errors, setErrors] = useState({
     phone: "",
+    confirmPassword: "",
   });
 
   const validatePhoneNumber = (phone) => {
@@ -27,7 +29,6 @@ const RegisterRequestor = () => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
 
-    // Phone validation
     if (name === "phone") {
       setErrors({
         ...errors,
@@ -36,23 +37,38 @@ const RegisterRequestor = () => {
           : "Phone number must be 10 digits and start with 7, 8, or 9.",
       });
     }
+
+    if (name === "confirmPassword" || name === "password") {
+      setErrors({
+        ...errors,
+        confirmPassword:
+          name === "confirmPassword" && value !== form.password
+            ? "Passwords do not match."
+            : "",
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validate phone number before submitting
+
     if (!validatePhoneNumber(form.phone)) {
-      setErrors({
-        ...errors,
+      setErrors((prev) => ({
+        ...prev,
         phone: "Phone number must be 10 digits and start with 7, 8, or 9.",
-      });
+      }));
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      alert("Passwords do not match.");
       return;
     }
 
     try {
       const res = await axios.post("http://localhost:5000/api/users/register", form);
       alert(res.data.message);
-      navigate("/"); 
+      navigate("/");
     } catch (err) {
       alert(err.response?.data?.error || "Registration failed");
     }
@@ -105,7 +121,7 @@ const RegisterRequestor = () => {
           {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
         </div>
 
-        {/* Blood Group Dropdown */}
+        {/* Blood Group */}
         <div className="mb-4">
           <label className="block mb-1 text-gray-700">Blood Group</label>
           <select
@@ -138,7 +154,7 @@ const RegisterRequestor = () => {
         </div>
 
         {/* Password */}
-        <div className="mb-6">
+        <div className="mb-4">
           <label className="block mb-1 text-gray-700">Password</label>
           <input
             type="password"
@@ -150,7 +166,26 @@ const RegisterRequestor = () => {
           />
         </div>
 
-        <button type="submit" className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">
+        {/* Confirm Password */}
+        <div className="mb-6">
+          <label className="block mb-1 text-gray-700">Confirm Password</label>
+          <input
+            type="password"
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded"
+            required
+          />
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
+        >
           Register
         </button>
       </form>

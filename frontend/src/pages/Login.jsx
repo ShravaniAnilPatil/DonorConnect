@@ -1,30 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
-  const [userType, setUserType] = useState("requestor"); 
+  const [userType, setUserType] = useState("requestor");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if user is already logged in
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.email) {
+      navigate(location.state?.from || "/profile");
+    }
+  }, [navigate, location]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const endpoint = userType === "donor" ? "/donors/login" : "/users/login";
 
     try {
       const res = await axios.post(`http://localhost:5000/api${endpoint}`, form);
-      alert(res.data.message);
+      
+      // Store user data with name if available
       const storedUser = {
         email: form.email,
         userType: res.data.user_type || userType,
+        name: res.data.name || "",
+        isAuthenticated: true
       };
+      
       localStorage.setItem("user", JSON.stringify(storedUser));
-      navigate("/profile");
+      
+      // Show success message
+      alert(res.data.message || "Login successful!");
+      
+      // Navigate to the intended page or profile
+      navigate(location.state?.from || "/profile");
     } catch (err) {
       alert(err.response?.data?.error || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,7 +62,6 @@ const Login = () => {
     <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4">
       <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold text-red-600 mb-4 text-center">Login</h2>
-
 
         <div className="flex justify-center gap-4 mb-6">
           <button
@@ -88,9 +109,10 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600"
+            disabled={loading}
+            className={`w-full ${loading ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-600'} text-white py-2 rounded transition`}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
@@ -99,7 +121,7 @@ const Login = () => {
           <button
             type="button"
             onClick={goToRegister}
-            className="text-red-500 underline hover:text-red-700 mt-1"
+            className="text-red-500 hover:text-red-700 mt-1"
           >
             Sign up as {userType === "donor" ? "Donor" : "Requestor"}
           </button>
