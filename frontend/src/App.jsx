@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import SectionInfo from "./components/SectionInfo";
+import StatsSection from "./components/StatsSection";
 import QuoteSection from "./components/QuoteSection";
 import DeveloperSection from "./components/DeveloperSection";
 import Footer from "./components/Footer";
@@ -14,6 +15,7 @@ import FindDonors from "./pages/FindDonor";
 import AllRequests from "./pages/AllRequests";
 import DonorBloodRequests from "./pages/DonorBloodRequests";
 import ProtectedRoute from "./components/protectedRoute";
+
 function App() {
   const user = localStorage.getItem("user");
 
@@ -29,6 +31,7 @@ function App() {
               <>
                 <Hero />
                 <SectionInfo />
+                <StatsSection />
                 <QuoteSection />
                 <DeveloperSection />
                 <Footer />
